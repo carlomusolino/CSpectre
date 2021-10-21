@@ -1,21 +1,19 @@
 #include <cmath>
-#include <stdio>
-#include <stdlib>
 
 namespace Chebyshev {
 
 
-  template <class T, unsigned int N> inline auto T(const T& x)
+  template <unsigned int N> inline auto T(const double& x)
   {
-    return ( (static_cast<T>(2)*x*<T,N-1>T(x)) - <T,N-2>T(x)  );
+    return ( (2*x*T<N-1>(x)) - T<N-2>(x)  );
   }
 
-  template <class T,0> inline auto T(const T& x)
+  template <> inline auto T<0>(const double& x)
   {
-    return static_cast<T>(1);
+    return 1.0;
   }
 
-  template <class T,1> inline auto T(const T& x)
+  template <> inline auto T<1>(const double& x)
   {
     return x; 
   }
