@@ -1,0 +1,41 @@
+#include <cmath>
+
+namespace Chebyshev {
+
+  template <class T> inline auto T0(const T& x)
+  {
+    return static_cast<T>(1);
+  }
+
+  template <class T> inline auto T1(const T& x)
+  {
+    return x;
+  }
+
+  template <class T> inline auto Tn(const int n, const T& x)
+  {
+    switch(n)
+      {
+      case 0:
+	return static_cast<T>(1);
+      case 1:
+	return x;
+      case default:
+	break;
+      }
+
+    auto tkm1 = T0<T>(x);
+    auto tk   = T1<T>(x);
+    auto tkp1 = tkm1 ;
+    
+    for(auto i = 2u;i<=n;i++)
+      {
+	tkp1 =  (static_cast<T>(2)*x*tk) - tkm1 ;
+	tkm1 = tk ;
+	tk   = tkp1 ;
+      }
+    return tk
+  }
+
+
+}
