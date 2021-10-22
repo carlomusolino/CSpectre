@@ -17,8 +17,8 @@ int main()
   double dx = 2.0 / NPOINTS;
   for(int i=0; i<NPOINTS; i++){
     outfile << x << " " ; 
-    outfile << Chebyshev::T<0>(x) << " " << Chebyshev::T<1>(x) << " " << Chebyshev::T<2>(x) << " ";
-    outfile << Chebyshev::T<3>(x) << " " << Chebyshev::T<4>(x) << "\n";
+    outfile << Chebyshev::Tn(x,0) << " " << Chebyshev::Tn(x,1) << " " << Chebyshev::Tn(x,2) << " ";
+    outfile << Chebyshev::Tn(x,3) << " " << Chebyshev::Tn(x,4) << "\n";
     x += dx;
   }
   outfile.close();
