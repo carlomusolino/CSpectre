@@ -34,3 +34,7 @@
 # Emacs files
 \#*
 *~
+*.dSYM
+
+#Visual code's weird stuff
+.vscode/*
