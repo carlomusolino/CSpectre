@@ -5,21 +5,23 @@ using namespace FunctionalBases;
 
 namespace Functions {
 
-    template <class T, class FuncBase>
+    template <class T, class FuncBase, unsigned int N>
     class Function {
         std::vector<T> f_i;   // physical space representation of f
         std::vector<T> ft_i;  // collocation space representation of f
-        unsigned int N;
-        B basis; // should be a derived class of FunctionBase
+        FuncBase* basis; // should be a derived class of FunctionBase
         public:
         // creators
-        Function<T,B>(const std::vector<T>& f_i): f_i(f_i), N(f_i.size()), basis(N) {
-            interpolate();
+        Function<T,FuncBase,N>(const std::vector<T>& f_i): f_i(f_i) {
+            assert(f_i.size()==N);
+            basis = new FuncBase(N);
+            decompose();
         };
-        Function<T,B>(const unsigned int N, void * func): N(N), basis(N) {
+        Function<T,FuncBase,N>(void func(const std::vector<T>&, std::vector<T>&)) {
+            basis = new FuncBase(N) ;
             std::vector<T> n;
             basis->get_nodes(n);
-            func(n,f_i);
+            (*func)(n,f_i);
             decompose();
         }
         // members
@@ -29,24 +31,24 @@ namespace Functions {
             basis->calc_spectral_coeffs(f_i,ft_i);
         }
         // access
-        inline void get_spectral_coeffs();
-        inline void get_func_vals();
+        inline void get_spectral_coeffs(std::vector<T>& y){ y = ft_i;};
+        inline void get_func_vals(std::vector<T>& y){ y = f_i; };
         // destructor
-        ~Function<T,B>() {};
+        ~Function<T,FuncBase,N>() { delete basis;};
     };
 
 
-template <class T,class B> inline void Function<T,B>::eval(const T& x, T& f_x)
+template <class T,class FuncBase, unsigned int N> inline void Function<T,FuncBase,N>::eval(const T& x, T& f_x)
 {   
-    for(int n=0; i<ft_i.size(); i++) f_x += ft_i[n] * basis->evaluate_func(x,n);
+    for(int n=0; n<ft_i.size(); n++) f_x += ft_i[n] * basis->evaluate_function(x,n);
 };
 
-template <class T,class B> inline void Function<T,B>::eval(const std::vector<T>& x, std::vector<T>& f_x){
+template <class T,class FuncBase, unsigned int N> inline void Function<T,FuncBase,N>::eval(const std::vector<T>& x, std::vector<T>& f_x){
     f_x.clear();
     for (const auto& xval: x) {
         T tmp = static_cast<T>(0);
-        for(int n=0; i<ft_i.size(); i++) tmp += ft_i[n] * basis->evaluate_func(xval,n);
-        f_x.push_back(tmp)
+        for(int n=0; n<ft_i.size(); n++) tmp += ft_i[n] * basis->evaluate_function(xval,n);
+        f_x.push_back(tmp);
     }
 };
             
