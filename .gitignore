@@ -39,3 +39,4 @@
 #Visual code's weird stuff
 .vscode/*
 tests/test_chebyshev
+*.txt
