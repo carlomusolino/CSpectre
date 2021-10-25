@@ -1,3 +1,5 @@
+#ifndef _MY_CHEBYSHEV_HPP_
+
 #include <cmath>
 
 namespace Chebyshev {

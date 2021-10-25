@@ -1,3 +1,14 @@
+/**
+ * @brief Implementation of FunctionalBase classes.
+ * @author Carlo Musolino (musolino@itp.uni-frankfurt.de)
+ * Implementation of abstract class FunctionalBase and subclasses. These
+ * deal with the definition of collocation nodes, interpolation domain and
+ * calculation of the spectral coefficients for function decomposition.
+ */
+#ifndef _FUNCBASES_HPP_
+#define _FUNCBASES_HPP_
+#endif 
+
 #include <cmath>
 #include <vector>
 #include <assert.h>
@@ -6,6 +17,9 @@
 
 namespace FunctionalBases {
 
+  /**
+   * @brief Abstract class 
+   */
   template <class T>
   class FunctionalBase {
     unsigned int N;
@@ -25,23 +39,44 @@ namespace FunctionalBases {
     virtual ~FunctionalBase<T>() {} ;
   };
 
+  /**
+   * @brief Implementation of Chebyshev polynomial basis.
+   * Templated subclass of abstract class FunctionalBases implementing a Chebyshev polynomial basis. 
+   */
   template <class T>
   class ChebyshevBase: public FunctionalBase<T> {
-    unsigned int N;
-    std::vector<T> nodes;
-    std::vector<T> weights;
+    unsigned int N; //! Order
+    std::vector<T> nodes; //! Gauss-Lobatto collocation points
+    std::vector<T> weights; //! Gaussian quadrature weights 
   public:
-    // constructor
+    // constructor ----------------------
+    /**
+     * @brief Constructor
+     * @param N order of the polynomial basis.
+     */
     ChebyshevBase<T>(unsigned int N) : N(N), FunctionalBase<T>(N){
       calc_nodes_and_weights();
     };
-    // class methods 
+    // class methods ---------------------
+    /**
+     * @brief Initialise value of Gauss-Lobatto nodes and Gaussian quadrature weights.
+     */
     inline void calc_nodes_and_weights();
+    /**
+     * @brief Wrapper for nth-order polynomial evaluation. Routines implemented in chebyshev.hpp
+     * @param x point of evaluation
+     * @param n order of the polynomial
+     */
     inline T evaluate_function(const T& x, const unsigned int n)  {
       return Chebyshev::Tn<T>(x,n);
     };
+    /**
+     * @brief Calculate spectral coefficients of a function given its values at collocation points 
+     * @param f values of f at collocation points
+     * @param ftilde output vector
+     */
     void calc_spectral_coeffs(const std::vector<T> f,std::vector<T>& ftilde) ;
-    // access
+    // access ----------------
     inline void print_nodes() {
       std::cout << "Length of nodes vector: " << nodes.size() << "\n";
       for (const auto& val : nodes) std::cout << val << " "; 
@@ -52,9 +87,11 @@ namespace FunctionalBases {
       for (const auto& val : weights) std::cout << val << " "; 
       std::cout << "\n";
     }
+    //! Return the nodes
     inline void get_nodes(std::vector<T>& pts)  {
       pts = nodes;
     };
+    //! Return the weights
     inline void get_weights(std::vector<T>& w)  {
       w = weights;
     };
@@ -62,7 +99,8 @@ namespace FunctionalBases {
       N = n;
       calc_nodes_and_weights();
     }
-    // destructor
+    // destructor -----------------
+    //! Default destructor
     ~ChebyshevBase<T>() {};
   };
 

@@ -7,6 +7,7 @@
 
 #ifndef _MY_FUNCS_H
 #define _MY_FUNCS_H
+#endif
 
 #include "polybases/polybases.hpp"
 
