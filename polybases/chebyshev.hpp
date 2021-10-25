@@ -1,10 +1,11 @@
 /**
+ * @file chebyshev.hpp
  * @brief Somewhat efficient implementation of Chebyshev polynomial evaluation
  * @author Carlo Musolino (musolino@itp.uni-frankfurt.de)
  */
 #ifndef _MY_CHEBYSHEV_HPP
 #define _MY_CHEBYSHEV_HPP
-#endif 
+
 
 #include <cmath>
 
@@ -46,3 +47,5 @@ namespace Chebyshev {
 
 
 }
+
+#endif 

@@ -1,4 +1,5 @@
 /**
+ * @file polybases.hpp
  * @brief Implementation of FunctionalBase classes.
  * @author Carlo Musolino (musolino@itp.uni-frankfurt.de)
  * Implementation of abstract class FunctionalBase and subclasses. These
@@ -7,7 +8,7 @@
  */
 #ifndef _FUNCBASES_HPP_
 #define _FUNCBASES_HPP_
-#endif 
+
 
 #include <cmath>
 #include <vector>
@@ -28,13 +29,17 @@ namespace FunctionalBases {
     FunctionalBase<T>(unsigned int N) : N(N) {};
     // virtual member functions 
     virtual inline T evaluate_function(const T& x, const unsigned int n){};
-    virtual void calc_spectral_coeffs(const std::vector<T> f,std::vector<T>& ftilde){};
+    virtual void calc_spectral_coeffs(const std::vector<T>& f,std::vector<T>& ftilde){};
+    virtual void calc_function_values(const std::vector<T>& ftilde, std::vector<T>& f){};
+    virtual inline void calc_deriv(std::vector<T>& Lij) {};
+    virtual inline void calc_second_deriv(std::vector<T>& Lij) {};
+    virtual inline void calc_times_x(std::vector<T>& Lij) {};
     // access 
     virtual inline void get_nodes(std::vector<T>& pts)  {};
     virtual inline void get_weights(std::vector<T>& w)  {};
+    virtual inline int get_N() { return N; };
     virtual inline void print_nodes() {};
     virtual inline void print_weights() {};
-    virtual inline void change_N(const unsigned int N) {};
     // destructor
     virtual ~FunctionalBase<T>() {} ;
   };
@@ -75,7 +80,11 @@ namespace FunctionalBases {
      * @param f values of f at collocation points
      * @param ftilde output vector
      */
-    void calc_spectral_coeffs(const std::vector<T> f,std::vector<T>& ftilde) ;
+    inline void calc_spectral_coeffs(const std::vector<T>& f,std::vector<T>& ftilde) ;
+    inline void calc_function_values(const std::vector<T>& ftilde, std::vector<T>& f) ;
+    inline void calc_deriv(std::vector<T>& Lij);
+    inline void calc_second_deriv(std::vector<T>& Lij);
+    inline void calc_times_x(std::vector<T>& Lij);
     // access ----------------
     inline void print_nodes() {
       std::cout << "Length of nodes vector: " << nodes.size() << "\n";
@@ -99,6 +108,9 @@ namespace FunctionalBases {
       N = n;
       calc_nodes_and_weights();
     }
+    inline int get_N() {
+      return N;
+    }
     // destructor -----------------
     //! Default destructor
     ~ChebyshevBase<T>() {};
@@ -118,7 +130,7 @@ namespace FunctionalBases {
 	    weights.push_back(static_cast<T>(M_PI/(2*N)));
     }
 
-  template <class T>  void ChebyshevBase<T>::calc_spectral_coeffs(const std::vector<T> f,std::vector<T>& ftilde){
+  template <class T>  inline void ChebyshevBase<T>::calc_spectral_coeffs(const std::vector<T>& f,std::vector<T>& ftilde){
     assert(f.size()==N+1);
     ftilde.clear();
     T gamma_n, ft_n;
@@ -133,11 +145,63 @@ namespace FunctionalBases {
     }  
   };
 
+  template <class T>  inline void ChebyshevBase<T>::calc_function_values(const std::vector<T>& ftilde, std::vector<T>& f) {
+    assert(ftilde.size()==N+1);
+    f.clear();
+    for (const auto& xval: nodes) {
+        T tmp = static_cast<T>(0);
+        for(int n=0; n<N+1; n++) tmp += ftilde[n] * evaluate_function(xval,n);
+        f.push_back(tmp);
+    }
+  };
 
+  template <class T>  inline void ChebyshevBase<T>::calc_deriv(std::vector<T>& Lij)
+  {
+    Lij.clear();
+    for (int i=0; i<N+1; i++){
+      for (int j=0; j<N+1; j++){
+        T val = static_cast<T>(0);
+        double delta_0n = (i==0) ? 1.0 : 0.0;
+        if (((i+j)%2)&&(j>i)) val = static_cast<T>( 2.0/(1.0 + delta_0n) * j );
+        Lij.push_back(val);
+      }
+    }
+  }
 
+  template <class T>  inline void ChebyshevBase<T>::calc_second_deriv(std::vector<T>& Lij)
+  {
+    Lij.clear();
+    for (int i=0; i<N+1; i++){
+      for (int j=0; j<N+1; j++){
+        T val = static_cast<T>(0);
+        double delta_0n = (i==0) ? 1.0 : 0.0;
+        if ( (!((i+j)%2)) && (j>(i+1)) ) val = static_cast<T>( 1.0/(1.0 + delta_0n) * j * ( j * j - i * i));
+        Lij.push_back(val);
+      }
+    }
+  }
+
+  template <class T>  inline void ChebyshevBase<T>::calc_times_x(std::vector<T>& Lij)
+  {
+    Lij.clear();
+    for (int i=0; i<N+1; i++){
+      for (int j=0; j<N+1; j++){
+        T val = static_cast<T>(0);
+        int im1 = i-1;
+        double delta_0nm1 = (im1==0) ? 1.0 : 0.0;
+        if (j==(i-1)){ 
+          val = static_cast<T>( 0.5*(1.0+delta_0nm1) ); 
+          }
+        else if (j==(i+1)){
+           val = static_cast<T>(0.5); 
+           }
+        Lij.push_back(val);
+      }
+    }
+  }
 
 } //namespace FunctionalBases
 
-
+#endif 
 
 

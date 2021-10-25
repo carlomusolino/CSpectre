@@ -7,7 +7,7 @@
 
 #ifndef _MY_FUNCS_H
 #define _MY_FUNCS_H
-#endif
+
 
 #include "polybases/polybases.hpp"
 
@@ -71,8 +71,11 @@ namespace Functions {
        * FunctionalBasis abstract class.
        */
       inline void decompose(){
-            basis->calc_spectral_coeffs(f_i,ft_i);
-        }
+          basis->calc_spectral_coeffs(f_i,ft_i);
+      }
+      inline void inverse_transform(){
+        basis->calc_function_values(ft_i,f_i);
+      }
         // access---------------------
       /**
        * @brief access to spectral coefficients
@@ -84,6 +87,17 @@ namespace Functions {
        * @param y reference to output vector
        */
         inline void get_func_vals(std::vector<T>& y){ y = f_i; };
+      /** 
+       * @brief Change spectral coefficients from outside (e.g. by a solver)
+       * Takes new spectral coefficients as input and recalculates function values
+       * on grid nodes based on new decomposition
+       * @param ft_i_new new values of the spectral coefficients
+       */
+        void update_spectral_coeffs(const std::vector<T>& ft_i_new) {
+          ft_i.clear();
+          ft_i = ft_i_new;
+          inverse_transform(); 
+        }
         // destructor -------------
       /**
        * @brief Destructor. Clean up basis member.
@@ -108,3 +122,4 @@ template <class T,class FuncBase, unsigned int N> inline void Function<T,FuncBas
             
 }
 }
+#endif
